@@ -3,6 +3,14 @@
 🚀 Emergency app is running on port: 3000
 🔗 Access the site at: http://localhost:3000
 ==================================================
+ลิ้งโค้ด https://prod.liveshare.vsengsaas.visualstudio.com/join?F80DEEA3766D4893AF78A88BB010ACC6452A
+
+คำสั่งรันโปรแกรม 
+terminal 
+npm start
+
+รันผ่าน http://localhost:3000 ขึ้น แล้วคัดลองวางลงเบาร์เซอร์ 
+
 
 ลิ้งเว็บ https://blog-condition-bullring.ngrok-free.dev/login
 
