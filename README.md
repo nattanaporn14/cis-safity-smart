@@ -4,6 +4,8 @@
 🔗 Access the site at: http://localhost:3000
 ==================================================
 
+ลิ้งเว็บ https://blog-condition-bullring.ngrok-free.dev/login
+
 digram
 https://drive.google.com/file/d/1Q19m9g44odHcEL7k3LsZqDn_4PEQdhpL/view?usp=sharing
 
