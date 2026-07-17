@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>เข้าสู่ระบบ - ระบบแจ้งเหตุฉุกเฉิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-bold mb-6 text-center text-red-600">🚨 ระบบแจ้งเหตุฉุกเฉิน</h2>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm text-center"><%= error %></div>
+        <% } %>
+        
+        <form action="/login" method="POST" class="space-y-4">
+            <!-- เพิ่มส่วนเลือกบทบาท "นักศึกษา / ผู้แจ้งเหตุ" เรียบร้อยแล้ว -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">เข้าสู่ระบบในฐานะ</label>
+                <select name="role" class="mt-1 block w-full p-2 border border-gray-300 rounded shadow-sm focus:ring-red-500 focus:border-red-500 bg-white">
+                    <option value="user">🎓 นักศึกษา / ผู้แจ้งเหตุ (Student)</option>
+                    <option value="staff">🧑‍🚒 เจ้าหน้าที่ปฏิบัติการ (Staff)</option>
+                    <option value="admin">⚙️ ผู้ดูแลระบบ (Admin)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">ชื่อผู้ใช้งาน</label>
+                <input type="text" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded shadow-sm focus:ring-red-500 focus:border-red-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">รหัสผ่าน</label>
+                <input type="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded shadow-sm focus:ring-red-500 focus:border-red-500">
+            </div>
+            
+            <button type="submit" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700 font-bold transition duration-200">เข้าสู่ระบบ</button>
+        </form>
+        
+        <p class="mt-4 text-center text-sm text-gray-600">ยังไม่มีบัญชี? <a href="/register" class="text-blue-600 hover:underline">ลงทะเบียนที่นี่</a></p>
+        
+        <!-- ส่วนแสดงเดโมบัญชีผู้ใช้ที่เพิ่มบทบาทนักศึกษาเข้ามาสำหรับใช้ทดสอบ -->
+        <div class="mt-6 pt-4 border-t border-gray-200 text-xs text-gray-500">
+            <p class="font-bold mb-1 text-center text-gray-600">🔑 ข้อมูลสำหรับทดสอบระบบ (Demo Account)</p>
+            <div class="grid grid-cols-3 gap-1 mt-2 bg-gray-50 p-2 rounded">
+                <div class="border-r pr-1">
+                    <span class="font-semibold text-green-600">🎓 Student:</span>
+                    <p>User: <code class="bg-gray-200 px-1 rounded">student</code></p>
+                    <p>Pass: <code class="bg-gray-200 px-1 rounded">123</code></p>
+                </div>
+                <div class="border-r px-1">
+                    <span class="font-semibold text-red-500">🧑‍🚒 Staff:</span>
+                    <p>User: <code class="bg-gray-200 px-1 rounded">staff</code></p>
+                    <p>Pass: <code class="bg-gray-200 px-1 rounded">123</code></p>
+                </div>
+                <div class="pl-1">
+                    <span class="font-semibold text-blue-500">⚙️ Admin:</span>
+                    <p>User: <code class="bg-gray-200 px-1 rounded">admin</code></p>
+                    <p>Pass: <code class="bg-gray-200 px-1 rounded">123</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

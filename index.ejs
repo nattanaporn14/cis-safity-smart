@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - CIS-SMART Tracker</title>
+    <!-- นำเข้า Tailwind CSS สำหรับการตกแต่งที่สวยงามและทันสมัย -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-slate-100">
+        <!-- ส่วนหัวแสดงโลโก้ระบบ -->
+        <div class="text-center mb-8">
+            <div class="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-md shadow-red-100">
+                <i class="fa-solid fa-triangle-exclamation animate-pulse"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800">CIS-SMART Tracker</h1>
+            <p class="text-slate-500 text-sm mt-1">ระบบติดตามและแจ้งเหตุฉุกเฉินอัจฉริยะ</p>
+        </div>
+
+        <!-- ฟอร์มล็อกอินสำหรับเจ้าหน้าที่ -->
+        <form action="/dashboard" method="GET" class="space-y-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">เข้าใช้งานสำหรับเจ้าหน้าที่</h3>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">อีเมลผู้ใช้งาน</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-envelope text-xs"></i>
+                    </span>
+                    <input type="email" name="email" value="staff@cis.com" required
+                        class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white text-sm transition-all" 
+                        placeholder="example@cis.com">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่าน</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-lock text-xs"></i>
+                    </span>
+                    <input type="password" value="123456" required
+                        class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white text-sm transition-all" 
+                        placeholder="••••••••">
+                </div>
+                <input type="hidden" name="role" value="admin">
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-lg shadow-red-100 hover:shadow-none transition-all flex items-center justify-center gap-2 text-sm">
+                <i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบเจ้าหน้าที่
+            </button>
+        </form>
+
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-200"></div>
+            </div>
+            <div class="relative flex justify-center text-xs uppercase">
+                <span class="bg-white px-3 text-slate-400 font-medium">หรือบุคคลทั่วไป</span>
+            </div>
+        </div>
+
+        <!-- ปุ่มสำหรับประชาชน/ผู้ใช้ทั่วไป -->
+        <div class="grid grid-cols-2 gap-3">
+            <a href="/report" 
+                class="flex flex-col items-center justify-center p-4 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl border border-red-100 transition-all text-center">
+                <i class="fa-solid fa-bullhorn text-xl mb-2"></i>
+                <span class="text-xs font-semibold">แจ้งเหตุฉุกเฉิน</span>
+            </a>
+            <a href="/history" 
+                class="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl border border-slate-200 transition-all text-center">
+                <i class="fa-solid fa-clock-rotate-left text-xl mb-2"></i>
+                <span class="text-xs font-semibold">เช็กสถานะ/ประวัติ</span>
+            </a>
+        </div>
+
+        <!-- ลายน้ำท้ายเว็บ -->
+        <div class="text-center mt-8 text-xs text-slate-400">
+            &copy; 2026 CIS Safety & Rescue Tracker. All rights reserved.
+        </div>
+    </div>
+
+</body>
+</html>

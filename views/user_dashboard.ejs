@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แดชบอร์ดนักศึกษา - ระบบแจ้งเหตุฉุกเฉิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen pb-12">
+
+    <!-- 1. แถบเนวิเกชันด้านบน -->
+    <nav class="bg-red-600 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">🚨 CIS Safety & Rescue</h1>
+            <div class="flex items-center gap-4">
+                <span class="hidden md:inline text-sm font-medium">สวัสดี, <%= user.name %> (นักศึกษา)</span>
+                <a href="/logout" class="bg-red-800 hover:bg-red-950 px-3 py-1.5 rounded text-xs font-bold transition">ออกจากระบบ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. พื้นที่เนื้อหาหลัก -->
+    <main class="max-w-6xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- ฝั่งซ้าย: ข้อมูลผู้แจ้ง + ฟอร์มรายงานเหตุฉุกเฉิน -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- กล่องข้อมูลส่วนตัว -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">👤 ข้อมูลผู้แจ้งเหตุ</h2>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <p><strong class="text-gray-800">ชื่อ-นามสกุล:</strong> <%= user.name %></p>
+                    <p><strong class="text-gray-800">รหัสนักศึกษา:</strong> <%= user.studentId %></p>
+                    <p><strong class="text-gray-800">เบอร์โทรศัพท์:</strong> <%= user.phone %></p>
+                    <p><strong class="text-gray-800">ที่พัก/หอพัก:</strong> <%= user.residence %></p>
+                </div>
+            </div>
+
+            <!-- ฟอร์มส่งรายงานแจ้งเหตุ -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">📣 แจ้งเหตุฉุกเฉินใหม่</h2>
+                
+                <form action="/incident/report" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <!-- ประเภทเหตุ -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">ประเภทเหตุฉุกเฉิน</label>
+                        <select name="type" required class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500">
+                            <option value="อุบัติเหตุ">🚗 อุบัติเหตุ</option>
+                            <option value="ไฟไหม้">🔥 ไฟไหม้ / อัคคีภัย</option>
+                            <option value="ทะเลาะวิวาท / เหตุรุนแรง">⚔️ ทะเลาะวิวาท / เหตุรุนแรง</option>
+                            <option value="เจ็บป่วยฉุกเฉิน">🚑 เจ็บป่วยฉุกเฉิน</option>
+                            <option value="อื่นๆ">❓ อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <!-- สถานที่เกิดเหตุ -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">สถานที่เกิดเหตุ</label>
+                        <input type="text" name="location" required placeholder="ระบุตึก ชั้น หรือจุดสังเกตเด่นชัด" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500">
+                    </div>
+
+                    <!-- รายละเอียดเพิ่มเติม -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700">รายละเอียดสถานการณ์</label>
+                        <textarea name="details" rows="3" required placeholder="อธิบายสถานการณ์ย่อ เช่น มีผู้บาดเจ็บกี่คน ต้องการถังดับเพลิง เป็นต้น" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500"></textarea>
+                    </div>
+
+                    <!-- ระบบถ่ายภาพ/อัปโหลดภาพประกอบ -->
+                    <div class="border-t pt-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">📸 แนบรูปภาพประกอบ</label>
+                        
+                        <!-- แท็บตัวเลือกการเพิ่มรูปภาพ -->
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" id="btn-use-upload" class="flex-1 text-xs py-1.5 font-bold rounded bg-red-100 text-red-700" onclick="switchImageSource('upload')">เลือกไฟล์จากเครื่อง</button>
+                            <button type="button" id="btn-use-camera" class="flex-1 text-xs py-1.5 font-bold rounded bg-gray-100 text-gray-600" onclick="switchImageSource('camera')">เปิดกล้องถ่ายสด</button>
+                        </div>
+
+                        <!-- 1. ส่วนอัปโหลดไฟล์จากเครื่อง -->
+                        <div id="upload-container">
+                            <input type="file" name="image" accept="image/*" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                        </div>
+
+                        <!-- 2. ส่วนของกล้อง (Camera Stream) -->
+                        <div id="camera-container" class="hidden space-y-2">
+                            <video id="video" class="w-full bg-black rounded-lg hidden" autoplay playsinline></video>
+                            <canvas id="canvas" class="hidden"></canvas>
+                            <button type="button" id="btn-capture" class="w-full py-2 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 hidden" onclick="capturePhoto()">กดถ่ายรูปภาพ</button>
+                            <div id="snapshot-preview" class="hidden border border-gray-300 p-1 rounded-lg">
+                                <p class="text-[10px] text-gray-500 text-center">ภาพที่บันทึกสำเร็จ</p>
+                                <img id="preview-img" class="w-full rounded" src="">
+                            </div>
+                            <!-- Input ซ่อนข้อมูล Base64 สำหรับส่งไปหลังบ้าน -->
+                            <input type="hidden" name="capturedImage" id="capturedImage">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow transition duration-200 text-center">🚨 ส่งรายงานเหตุด่วนทันที</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ฝั่งขวา: รายการประวัติเหตุฉุกเฉินที่คุณเคยแจ้ง -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">📋 ประวัติและสถานะเหตุที่คุณเคยแจ้ง (<%= incidents.length %> รายการ)</h2>
+                
+                <% if (incidents.length === 0) { %>
+                    <div class="text-center py-12 text-gray-400">
+                        <p class="text-5xl">🕊️</p>
+                        <p class="mt-2 text-sm">ไม่มีประวัติการแจ้งเหตุของคุณในขณะนี้</p>
+                    </div>
+                <% } else { %>
+                    <div class="space-y-4 max-h-[700px] overflow-y-auto pr-2">
+                        <% incidents.reverse().forEach(incident => { %>
+                            <div class="p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition bg-white space-y-3">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+                                            <% if (incident.type === 'อุบัติเหตุ') { %> bg-yellow-100 text-yellow-800 <% } %>
+                                            <% if (incident.type === 'ไฟไหม้') { %> bg-red-100 text-red-800 <% } %>
+                                            <% if (incident.type === 'เจ็บป่วยฉุกเฉิน') { %> bg-blue-100 text-blue-800 <% } %>
+                                            <% if (incident.type === 'ทะเลาะวิวาท / เหตุรุนแรง') { %> bg-purple-100 text-purple-800 <% } %>
+                                            <% if (incident.type === 'อื่นๆ') { %> bg-gray-100 text-gray-800 <% } %>
+                                        ">
+                                            <%= incident.type %>
+                                        </span>
+                                        <h3 class="font-bold text-gray-800 mt-2 text-base">📍 <%= incident.location %></h3>
+                                    </div>
+                                    
+                                    <!-- สถานะการดำเนินงาน -->
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold shadow-sm
+                                        <% if (incident.status === 'รอการตอบสนอง') { %> bg-red-500 text-white animate-pulse <% } %>
+                                        <% if (incident.status === 'กำลังดำเนินการ') { %> bg-blue-500 text-white <% } %>
+                                        <% if (incident.status === 'เสร็จสิ้น') { %> bg-green-500 text-white <% } %>
+                                    ">
+                                        <%= incident.status %>
+                                    </span>
+                                </div>
+
+                                <p class="text-sm text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-dashed"><%= incident.details %></p>
+
+                                <% if (incident.imageUrl) { %>
+                                    <div class="mt-2">
+                                        <img src="<%= incident.imageUrl %>" class="max-h-48 rounded-lg shadow-sm object-cover border" alt="รูปภาพแนบจากเกิดเหตุ">
+                                    </div>
+                                <% } %>
+
+                                <!-- บันทึกจากเจ้าหน้าที่กู้ภัย -->
+                                <% if (incident.staffNotes) { %>
+                                    <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-lg mt-3">
+                                        <p class="text-xs font-bold text-blue-800">📢 บันทึกความคืบหน้าจากเจ้าหน้าที่:</p>
+                                        <p class="text-xs text-blue-700 mt-1"><%= incident.staffNotes %></p>
+                                    </div>
+                                <% } %>
+
+                                <div class="text-[11px] text-gray-400 text-right pt-1 border-t">
+                                    แจ้งเมื่อ: <%= incident.createdAt %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 3. ส่วนควบคุม JavaScript สำหรับกล้องถ่ายภาพ -->
+    <script>
+        let stream = null;
+
+        function switchImageSource(source) {
+            const uploadContainer = document.getElementById('upload-container');
+            const cameraContainer = document.getElementById('camera-container');
+            const btnUpload = document.getElementById('btn-use-upload');
+            const btnCamera = document.getElementById('btn-use-camera');
+            const video = document.getElementById('video');
+            const btnCapture = document.getElementById('btn-capture');
+
+            if (source === 'upload') {
+                // ซ่อนระบบกล้องและปิดสตรีมกล้อง
+                uploadContainer.classList.remove('hidden');
+                cameraContainer.classList.add('hidden');
+                btnUpload.className = "flex-1 text-xs py-1.5 font-bold rounded bg-red-100 text-red-700";
+                btnCamera.className = "flex-1 text-xs py-1.5 font-bold rounded bg-gray-100 text-gray-600";
+                stopCamera();
+            } else {
+                // เปิดการทำงานระบบกล้องถ่ายภาพสด
+                uploadContainer.classList.add('hidden');
+                cameraContainer.classList.remove('hidden');
+                btnUpload.className = "flex-1 text-xs py-1.5 font-bold rounded bg-gray-100 text-gray-600";
+                btnCamera.className = "flex-1 text-xs py-1.5 font-bold rounded bg-red-100 text-red-700";
+                startCamera();
+            }
+        }
+
+        async function startCamera() {
+            const video = document.getElementById('video');
+            const btnCapture = document.getElementById('btn-capture');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                video.srcObject = stream;
+                video.classList.remove('hidden');
+                btnCapture.classList.remove('hidden');
+            } catch (err) {
+                alert('ไม่สามารถเปิดใช้งานกล้องถ่ายภาพได้ กรุณาใช้ตัวเลือกเลือกไฟล์ปกติแทน');
+                switchImageSource('upload');
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            document.getElementById('video').classList.add('hidden');
+            document.getElementById('btn-capture').classList.add('hidden');
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const capturedImageInput = document.getElementById('capturedImage');
+            const previewImg = document.getElementById('preview-img');
+            const snapshotPreview = document.getElementById('snapshot-preview');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // แปลงรูปภาพเป็น Base64 Data URL ให้สอดคล้องกับ app.js
+            const base64Data = canvas.toDataURL('image/jpeg');
+            capturedImageInput.value = base64Data;
+
+            // แสดงหน้าต่างพรีวิว
+            previewImg.src = base64Data;
+            snapshotPreview.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

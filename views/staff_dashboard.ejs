@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แดชบอร์ดเจ้าหน้าที่ - ระบบแจ้งเหตุฉุกเฉิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- เรียกใช้งาน Chart.js สำหรับทำกราฟสถิติ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen pb-12">
+
+    <!-- 1. แถบเนวิเกชันด้านบน -->
+    <nav class="bg-slate-800 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">🛡️ CIS Safety & Rescue (Staff Mode)</h1>
+            <div class="flex items-center gap-4">
+                <span class="text-sm font-medium">เจ้าหน้าที่: <%= user.name %></span>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-xs font-bold transition">ออกจากระบบ</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
+
+        <!-- ================= SECTION 1: สถิติการเกิดเหตุและการวิเคราะห์ ================= -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">📊 ศูนย์วิเคราะห์และสถิติเหตุฉุกเฉิน</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- ฝั่งซ้าย: ตัวเลขสรุปยอด -->
+                <div class="space-y-4">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-gray-100">
+                        <p class="text-sm text-gray-500 font-medium">🚨 สถิติเหตุรับแจ้งทั้งหมด</p>
+                        <p class="text-4xl font-extrabold text-slate-800 mt-1"><%= stats.total %> <span class="text-lg font-normal text-gray-500">ครั้ง</span></p>
+                    </div>
+                    
+                    <!-- กล่องสรุปวิเคราะห์วิจัย: เหตุที่เกิดบ่อยที่สุด -->
+                    <div class="bg-red-50 p-5 rounded-xl border border-red-100">
+                        <p class="text-sm text-red-700 font-bold flex items-center gap-1">⚠️ บทวิเคราะห์เหตุสูงสุด</p>
+                        <div class="mt-3">
+                            <span class="text-xs text-red-600 font-medium">ประเภทเหตุที่เกิดมากที่สุดในสถานศึกษาขณะนี้:</span>
+                            <p id="highest-incident-type" class="text-xl font-black text-red-600 mt-1">กำลังคำนวณ...</p>
+                        </div>
+                    </div>
+
+                    <!-- แจกแจงยอดแต่ละประเภท -->
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-yellow-50 p-2.5 rounded-lg border border-yellow-100 text-yellow-800">🚗 อุบัติเหตุ: <strong><%= stats.accident %></strong></div>
+                        <div class="bg-red-50 p-2.5 rounded-lg border border-red-100 text-red-800">🔥 ไฟไหม้: <strong><%= stats.fire %></strong></div>
+                        <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-100 text-purple-800">⚔️ เหตุรุนแรง: <strong><%= stats.fight %></strong></div>
+                        <div class="bg-blue-50 p-2.5 rounded-lg border border-blue-100 text-blue-800">🚑 เจ็บป่วย: <strong><%= stats.illness %></strong></div>
+                    </div>
+                </div>
+
+                <!-- ฝั่งขวา (คลุม 2 คอลัมน์): แสดงแผนภูมิวงกลมและแผนภูมิแท่งเปรียบเทียบ -->
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 items-center bg-gray-50 p-4 rounded-xl border">
+                    <div class="max-h-60 flex justify-center">
+                        <canvas id="chartPie"></canvas>
+                    </div>
+                    <div class="max-h-60 flex justify-center">
+                        <canvas id="chartBar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 2: รายการจัดการเหตุฉุกเฉิน ================= -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">📋 รายการเคสที่ต้องเข้าระงับเหตุและช่วยเหลือ</h2>
+
+            <% if (incidents.length === 0) { %>
+                <div class="text-center py-12 text-gray-400">
+                    <p class="text-5xl">💚</p>
+                    <p class="mt-2 text-sm">สถานการณ์ปกติ ไม่มีเหตุฉุกเฉินค้างในระบบ</p>
+                </div>
+            <% } else { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <% incidents.reverse().forEach(incident => { %>
+                        <div class="bg-white border rounded-xl p-5 shadow-sm space-y-4 hover:shadow-md transition">
+                            
+                            <!-- หัวการ์ด -->
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold
+                                        <% if (incident.type === 'อุบัติเหตุ') { %> bg-yellow-100 text-yellow-800 <% } %>
+                                        <% if (incident.type === 'ไฟไหม้') { %> bg-red-100 text-red-800 <% } %>
+                                        <% if (incident.type === 'เจ็บป่วยฉุกเฉิน') { %> bg-blue-100 text-blue-800 <% } %>
+                                        <% if (incident.type === 'ทะเลาะวิวาท / เหตุรุนแรง') { %> bg-purple-100 text-purple-800 <% } %>
+                                        <% if (incident.type === 'อื่นๆ') { %> bg-gray-100 text-gray-800 <% } %>
+                                    ">
+                                        <%= incident.type %>
+                                    </span>
+                                    <h3 class="font-bold text-gray-800 mt-2 text-base">📍 <%= incident.location %></h3>
+                                </div>
+                                <span class="text-[11px] text-gray-400 bg-gray-100 px-2 py-1 rounded"><%= incident.createdAt %></span>
+                            </div>
+
+                            <!-- รายละเอียด -->
+                            <div class="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-dashed">
+                                <p class="font-semibold text-gray-700 mb-1">📝 รายละเอียดเหตุ:</p>
+                                <%= incident.details %>
+                            </div>
+
+                            <!-- รูปภาพประกอบ (ถ้ามี) -->
+                            <% if (incident.imageUrl) { %>
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 mb-1">📸 ภาพถ่ายจากสถานที่เกิดเหตุ:</p>
+                                    <a href="<%= incident.imageUrl %>" target="_blank">
+                                        <img src="<%= incident.imageUrl %>" class="w-full h-40 object-cover rounded-lg border hover:opacity-90 transition" alt="ภาพเหตุฉุกเฉิน">
+                                    </a>
+                                </div>
+                            <% } %>
+
+                            <!-- ข้อมูลติดต่อผู้แจ้ง -->
+                            <div class="text-xs bg-slate-50 p-2.5 rounded-lg text-gray-600 space-y-1">
+                                <p><strong>ผู้แจ้งเหตุ:</strong> <%= incident.userName %></p>
+                            </div>
+
+                            <!-- ฟอร์มการอัปเดตสำหรับเจ้าหน้าที่ -->
+                            <form action="/staff/incident/update/<%= incident.id %>" method="POST" class="border-t pt-4 space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">🔄 อัปเดตสถานะการระงับเหตุ</label>
+                                    <select name="status" class="block w-full p-2 border border-gray-300 rounded text-xs bg-white focus:ring-slate-500">
+                                        <option value="รอการตอบสนอง" <%= incident.status === 'รอการตอบสนอง' ? 'selected' : '' %>>🔴 รอการตอบสนอง</option>
+                                        <option value="กำลังดำเนินการ" <%= incident.status === 'กำลังดำเนินการ' ? 'selected' : '' %>>🔵 กำลังดำเนินการช่วยเหลือ</option>
+                                        <option value="เสร็จสิ้น" <%= incident.status === 'เสร็จสิ้น' ? 'selected' : '' %>>🟢 เหตุการณ์เสร็จสิ้น / ปกติ</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">📝 บันทึกการกู้ภัย / วินิจฉัยเหตุ</label>
+                                    <input type="text" name="staffNotes" value="<%= incident.staffNotes %>" placeholder="เช่น ทีมแพทย์กำลังเคลื่อนย้ายผู้ป่วย หรือ ดับเพลิงควบคุมได้แล้ว" class="block w-full p-2 border border-gray-300 rounded text-xs focus:ring-slate-500">
+                                </div>
+
+                                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 rounded transition">💾 บันทึกความคืบหน้า</button>
+                            </form>
+
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </section>
+
+    </main>
+
+    <!-- ================= SECTION 3: JavaScript ทำงานกับกราฟสถิติ ================= -->
+    <script>
+        // ดึงค่าสถิติจากฝั่ง Node.js/EJS เข้ามาเก็บในตัวแปรฝั่ง Client
+        const statsData = {
+            accident: parseInt("<%= stats.accident %>") || 0,
+            fire: parseInt("<%= stats.fire %>") || 0,
+            fight: parseInt("<%= stats.fight %>") || 0,
+            illness: parseInt("<%= stats.illness %>") || 0,
+            others: parseInt("<%= stats.others %>") || 0
+        };
+
+        // --- 1. ตรรกะค้นหาว่าเหตุไหนเกิดสูงสุดเพื่อแสดงผลในการ์ดเด่น ---
+        const items = [
+            { name: '🚗 อุบัติเหตุ', count: statsData.accident },
+            { name: '🔥 ไฟไหม้ / อัคคีภัย', count: statsData.fire },
+            { name: '⚔️ ทะเลาะวิวาท / เหตุรุนแรง', count: statsData.fight },
+            { name: '🚑 เจ็บป่วยฉุกเฉิน', count: statsData.illness },
+            { name: '❓ เหตุอื่นๆ', count: statsData.others }
+        ];
+
+        // ค้นหาวัตถุที่มียอดนับสูงสุด
+        let maxIncident = items.reduce((max, item) => item.count > max.count ? item : max, items[0]);
+        
+        // อัปเดตข้อมูลข้อความแสดงอันดับสูงสุด
+        const displayDiv = document.getElementById('highest-incident-type');
+        if (parseInt("<%= stats.total %>") === 0) {
+            displayDiv.innerText = "🕊️ ยังไม่มีรายงานเหตุ";
+            displayDiv.className = "text-xl font-bold text-gray-500 mt-1";
+        } else {
+            displayDiv.innerText = `${maxIncident.name} (${maxIncident.count} ครั้ง)`;
+        }
+
+        // --- 2. การสร้างกราฟวงกลม (Pie Chart) ---
+        const ctxPie = document.getElementById('chartPie').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['อุบัติเหตุ', 'ไฟไหม้', 'ทะเลาะวิวาท', 'เจ็บป่วยฉุกเฉิน', 'อื่นๆ'],
+                datasets: [{
+                    data: [statsData.accident, statsData.fire, statsData.fight, statsData.illness, statsData.others],
+                    backgroundColor: ['#EAB308', '#EF4444', '#A855F7', '#3B82F6', '#6B7280']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                    title: { display: true, text: 'สัดส่วนเหตุฉุกเฉิน (%)', font: { size: 13, weight: 'bold' } }
+                }
+            }
+        });
+
+        // --- 3. การสร้างกราฟแท่ง (Bar Chart) ---
+        const ctxBar = document.getElementById('chartBar').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['อุบัติเหตุ', 'ไฟไหม้', 'ทะเลาะวิวาท', 'เจ็บป่วย', 'อื่นๆ'],
+                datasets: [{
+                    label: 'จำนวนครั้งที่เกิด',
+                    data: [statsData.accident, statsData.fire, statsData.fight, statsData.illness, statsData.others],
+                    backgroundColor: ['#FEF08A', '#FEE2E2', '#F3E8FF', '#DBEAFE', '#F3F4F6'],
+                    borderColor: ['#EAB308', '#EF4444', '#A855F7', '#3B82F6', '#6B7280'],
+                    borderWidth: 1.5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'เปรียบเทียบปริมาณจำนวนครั้ง', font: { size: 13, weight: 'bold' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

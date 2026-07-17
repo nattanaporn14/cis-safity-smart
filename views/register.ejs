@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ลงทะเบียนผู้ใช้ - ระบบแจ้งเหตุฉุกเฉิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- แถบเมนูด้านบนแบบธรรมดา (ไม่มีการเรียกตัวแปร user) -->
+    <nav class="bg-red-600 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold flex items-center gap-2">🚨 ระบบแจ้งเหตุฉุกเฉินสถานศึกษา</h1>
+        <div>
+            <a href="/login" class="bg-red-800 px-3 py-1.5 rounded hover:bg-red-900 text-xs font-bold transition">เข้าสู่ระบบ</a>
+        </div>
+    </nav>
+
+    <!-- กล่องฟอร์มลงทะเบียนตรงกลางหน้าจอ -->
+    <div class="flex items-center justify-center py-10 px-4">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">📝 สมัครสมาชิกผู้ใช้งาน</h2>
+            
+            <form action="/register" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ชื่อผู้ใช้งาน (Username สำหรับล็อกอิน)</label>
+                    <input type="text" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">รหัสผ่าน</label>
+                    <input type="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ชื่อ-นามสกุล</label>
+                    <input type="text" name="name" required class="mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">เบอร์โทรศัพท์</label>
+                    <input type="text" name="phone" required class="mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">รหัสนักศึกษา</label>
+                    <input type="text" name="studentId" required class="mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">สถานที่พัก / หอพัก</label>
+                    <input type="text" name="residence" required class="mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500" placeholder="เช่น หอพักใน มอ อาคาร A">
+                </div>
+                
+                <button type="submit" class="w-full bg-green-600 text-white p-2.5 rounded hover:bg-green-700 font-bold transition">ยืนยันการลงทะเบียน</button>
+            </form>
+            
+            <p class="mt-4 text-center text-sm text-gray-600">
+                มีบัญชีอยู่แล้ว? <a href="/login" class="text-blue-600 hover:underline font-semibold">กลับไปหน้าล็อกอิน</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
